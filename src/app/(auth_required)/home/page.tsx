@@ -23,10 +23,16 @@ const posts = [
 
 import NewPostModal from '@/components/NewPostModal';
 import PostItem from '@/components/PostItem';
+import { useRedux } from '@/lib/hooks/useRedux';
+import { setUserData } from '@/lib/slices/userSlice';
+import { RootState } from '@/lib/store';
 import { useState } from 'react';
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { useAppDispatch, useAppSelector } = useRedux();
+  const user = useAppSelector((state: RootState) => state.user)
+  const dispatch = useAppDispatch()
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -41,11 +47,13 @@ const Home = () => {
     console.log('New Post:', { title, content });
   };
 
+
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <div className="text-center">
-          <h1 className="text-3xl font-extrabold text-gray-900">Welcome to My Blog</h1>
+          <h1 className="text-3xl font-extrabold text-gray-900">Welcome to My Blog</h1> 
+          <span>user is {user.username}</span>
           <p className="mt-4 text-lg text-gray-600">Check out the latest posts below:</p>
         </div>
 
