@@ -25,10 +25,8 @@ import NewPostModal from "@/components/NewPostModal";
 import PostItem from "@/components/PostItem";
 import { useModal } from "@/lib/hooks/useModal";
 import { useRedux } from "@/lib/hooks/useRedux";
-import { useLogInMutation } from "@/lib/services/auth";
-import { setUserData } from "@/lib/slices/userSlice";
+import { useGetBlogsQuery } from "@/lib/services/blogs";
 import { RootState } from "@/lib/store";
-import { useState } from "react";
 
 const Home = () => {
 	const {
@@ -40,14 +38,23 @@ const Home = () => {
 	const user = useAppSelector((state: RootState) => state.user);
 	const dispatch = useAppDispatch();
 
-	const [logIn, { data, error, isLoading }] = useLogInMutation();
-	const handlePostSubmit = (title: string, content: string) => {
-		// Implement logic to submit the new post
+	const {
+		data: post,
+		isFetching,
+		isLoading,
+	} = useGetBlogsQuery({
+		pollingInterval: 3000,
+		refetchOnMountOrArgChange: true,
+		skip: false,
+	});
 
-		logIn({
-			username: "tahnoon",
-			password: "1234",
-		});
+	const handlePostSubmit = async (title: string, content: string) => {
+		// Implement logic to submit the new post
+		// const res = await refreshToken({
+		// 	refresh:
+		// 		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA4MTU0NTkzLCJpYXQiOjE3MDgxNTQyOTMsImp0aSI6IjMzOWMwYzQ5NTg1YjQzZWU5MjZhNjhmZTY2NDRhMzcwIiwidXNlcl9pZCI6NH0.KhqsjptWXMbWbmd5HuSDib-pX77xRsw1ieC6A4AIRvI",
+		// });
+		console.log(post);
 	};
 
 	return (
