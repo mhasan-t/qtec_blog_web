@@ -1,17 +1,33 @@
 "use client";
+import { useRegisterMutation } from "@/lib/services/auth";
+import { useRouter } from "next/navigation";
 import { FormEventHandler, useState } from "react";
 
 const Register = () => {
+	const router = useRouter();
+
 	const [username, setUsername] = useState("");
-	const [fullname, setFullname] = useState("");
+	const [full_name, setFullname] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
-	const handleRegister = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		// Implement your signup logic here
+	const [register] = useRegisterMutation();
 
-		// You can send a request to create a new user, typically using an API
+	const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+
+		const data = {
+			username,
+			password,
+			email,
+			full_name,
+		};
+
+		const res = await register(data);
+
+		if (!("error" in res)) {
+			router.push("/login");
+		}
 	};
 
 	return (
@@ -46,13 +62,13 @@ const Register = () => {
 							</label>
 							<input
 								id="fullname"
-								name="fullname"
+								name="full_name"
 								type="text"
 								autoComplete="fullname"
 								required
 								className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
 								placeholder="Fullname"
-								value={fullname}
+								value={full_name}
 								onChange={(e) => setFullname(e.target.value)}
 							/>
 						</div>

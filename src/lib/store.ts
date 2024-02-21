@@ -3,7 +3,9 @@ import userReducer from "@/lib/slices/userSlice";
 import appReducer from "@/lib/slices/appSlice";
 import { authApi } from "@/lib/services/auth";
 import { blogApi } from "./services/blogs";
-import { jwtTokenRefresher } from "./middlewares";
+import { apiErrorHandler, jwtTokenRefresher } from "./middlewares";
+import { postApi } from "./services/posts";
+import { baseApi } from "./services/baseApi";
 
 export const makeStore = () => {
 	return configureStore({
@@ -12,13 +14,14 @@ export const makeStore = () => {
 
 			user: userReducer,
 			[authApi.reducerPath]: authApi.reducer,
-			[blogApi.reducerPath]: blogApi.reducer,
+			[baseApi.reducerPath]: baseApi.reducer,
 		},
 		middleware: (getDefaultMiddleware) =>
 			getDefaultMiddleware().concat([
 				authApi.middleware,
-				blogApi.middleware,
+				baseApi.middleware,
 				jwtTokenRefresher,
+				apiErrorHandler,
 			]),
 	});
 };

@@ -1,40 +1,72 @@
 // Need to use the React-specific entry point to import createApi
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { RootState } from "../store";
+import { baseApi } from "./baseApi";
 // import type { Pokemon } from './types'
 
 // Define a service using a base URL and expected endpoints
-export const blogApi = createApi({
-	reducerPath: "blogsApi",
-	tagTypes: ["Blogs"],
-	baseQuery: fetchBaseQuery({
-		baseUrl: `${process.env.API_URL}blogs/`,
-		prepareHeaders: (headers, { getState }) => {
-			// By default, if we have a token in the store, let's use that for authenticated requests
-			const token = (getState() as RootState).user.access_token;
-			if (token) {
-				headers.set("Authorization", `Bearer ${token}`);
-			}
-			return headers;
-		},
-	}),
-
+export const blogApi = baseApi.injectEndpoints({
 	endpoints: (builder) => ({
-		// get all blogs
-		getBlogs: builder.query<any, any>({
-			query: (payload) => ({
-				url: "",
+		getCategories: builder.query({
+			query: () => {
+				return {
+					url: "categories/",
+					method: "GET",
+				};
+			},
+			providesTags: ["Category"],
+		}),
+
+		getBlogs: builder.query({
+			query: () => {
+				return {
+					url: "blogs/",
+					method: "GET",
+				};
+			},
+			providesTags: ["Blogs"],
+		}),
+
+		getBlogById: builder.query({
+			query: (id: number) => ({
+				url: `blogs/${id}/`,
 				method: "GET",
 			}),
-			async onQueryStarted(args, { dispatch, queryFulfilled, getState }) {
-				const res = await queryFulfilled;
-				console.log(res);
-				console.log((getState() as RootState).user.access_token);
+			providesTags: (result, error, arg) =>
+				result
+					? [{ type: "Blogs", id: result.id }, "Blogs"]
+					: ["Blogs"],
+		}),
+
+		getPostsByBlogId: builder.query({
+			query: (id: number) => {
+				return {
+					url: `blogs/${id}/posts/`,
+					method: "GET",
+				};
 			},
+			providesTags: (result, error, arg) =>
+				result
+					? [{ type: "BlogPosts", id: arg }, "Blogs", "BlogPosts"]
+					: ["BlogPosts", "Blogs"],
+		}),
+
+		createNewBlog: builder.mutation({
+			query: (payload: any) => ({
+				url: "blogs/",
+				method: "POST",
+				body: payload,
+			}),
+			invalidatesTags: ["Blogs"],
 		}),
 	}),
+	overrideExisting: false,
 });
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetBlogsQuery } = blogApi;
+export const {
+	useGetCategoriesQuery,
+	useGetBlogsQuery,
+	useGetBlogByIdQuery,
+	useGetPostsByBlogIdQuery,
+	useCreateNewBlogMutation,
+} = blogApi;

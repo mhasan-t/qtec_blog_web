@@ -1,10 +1,7 @@
 "use client";
 import { useRedux } from "@/lib/hooks/useRedux";
 import { useLogInMutation } from "@/lib/services/auth";
-import { openModal, setModalmessage } from "@/lib/slices/appSlice";
-import { setAccessToken, setUserData } from "@/lib/slices/userSlice";
-import { SerializedError } from "@reduxjs/toolkit";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -29,12 +26,6 @@ function LogIn({}: Props) {
 		});
 
 		if (!("error" in res)) {
-			dispatch(
-				setUserData({
-					username: username,
-					access_token: res.data.access,
-				})
-			);
 			router.push("/");
 		}
 	};
@@ -87,27 +78,16 @@ function LogIn({}: Props) {
 							type="submit"
 							className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 						>
-							<span className="absolute left-0 inset-y-0 flex items-center pl-3">
-								{/* Heroicon name: lock-closed */}
-								<svg
-									className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 20 20"
-									fill="currentColor"
-									aria-hidden="true"
-								>
-									<path
-										fillRule="evenodd"
-										d="M10 12a2 2 0 100-4 2 2 0 000 4z"
-										clipRule="evenodd"
-									/>
-									<path d="M2 8V6a4 4 0 014-4h8a4 4 0 014 4v2h1a2 2 0 012 2v8a2 2 0 01-2 2H3a2 2 0 01-2-2V10a2 2 0 012-2h1zm2-2V6a2 2 0 012-2h8a2 2 0 012 2v2H4z" />
-								</svg>
-							</span>
 							Log in
 						</button>
 					</div>
 				</form>
+
+				<div className="w-full text-center">
+					<Link href={"/register"} className="text-sm text-blue-700">
+						no account? register here
+					</Link>
+				</div>
 			</div>
 		</div>
 	);

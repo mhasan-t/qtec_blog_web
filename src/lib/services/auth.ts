@@ -7,36 +7,43 @@ import { setAccessToken, setUserData } from "../slices/userSlice";
 export const authApi = createApi({
 	reducerPath: "authApi",
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${process.env.API_URL}accounts/auth/`,
+		baseUrl: `${process.env.API_URL}accounts/`,
 	}),
 	tagTypes: ["Auth"],
 	endpoints: (builder) => ({
 		// login
 		logIn: builder.mutation<TokenResponse, LoginRequest>({
 			query: (payload) => ({
-				url: "token/",
+				url: "auth/token/",
 				method: "POST",
 				body: payload,
 			}),
 			async onQueryStarted(args, { dispatch, queryFulfilled }) {
-				//   const refreshToken = localStorage.getItem("refresh");
-				// 	if (refreshToken) {
-				// 		const access = await getAccessTokenByRefreshToken(
-				// 			refreshToken
-				// 		);
-				// 		console.log(access);
-				// 	}
-				// }
+				try {
+					const res = await queryFulfilled;
 
-				const res = await queryFulfilled;
-				dispatch(
-					setUserData({
-						username: args.username,
-						access_token: res.data.access,
-					})
-				);
-				localStorage.setItem("refresh", res.data.refresh);
+					localStorage.setItem("refresh", res.data.refresh);
+					let base64Url = res.data.access.split(".")[1];
+					let base64 = base64Url.replace("-", "+").replace("_", "/");
+					let payload = JSON.parse(atob(base64));
+
+					dispatch(
+						setUserData({
+							user_id: payload.user_id,
+							access_token: res.data.access,
+						})
+					);
+				} catch {}
 			},
+		}),
+
+		// register
+		register: builder.mutation<any, RegisterRequest>({
+			query: (payload) => ({
+				url: "users/",
+				method: "POST",
+				body: payload,
+			}),
 		}),
 
 		// refresh token
@@ -45,16 +52,25 @@ export const authApi = createApi({
 			RefreshTokenRequest
 		>({
 			query: (payload) => ({
-				url: "token/refresh/",
+				url: "auth/token/refresh/",
 				method: "POST",
 				body: payload,
 			}),
 			async onQueryStarted(args, { dispatch, queryFulfilled }) {
-				console.log("refreshing token");
 				try {
 					const res = await queryFulfilled;
-					dispatch(setAccessToken(res.data.access));
-					console.log(res);
+
+					// get username from jwt token payload
+					let base64Url = res.data.access.split(".")[1];
+					let base64 = base64Url.replace("-", "+").replace("_", "/");
+					let payload = JSON.parse(atob(base64));
+
+					dispatch(
+						setUserData({
+							user_id: payload.user_id,
+							access_token: res.data.access,
+						})
+					);
 				} catch {}
 			},
 		}),
@@ -63,4 +79,8 @@ export const authApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useLogInMutation, useRefreshTokenMutation } = authApi;
+export const {
+	useLogInMutation,
+	useRegisterMutation,
+	useRefreshTokenMutation,
+} = authApi;

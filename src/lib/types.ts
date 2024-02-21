@@ -3,6 +3,13 @@ type LoginRequest = {
 	password: string;
 };
 
+type RegisterRequest = {
+	username: string;
+	email: string;
+	full_name: string;
+	password: string;
+};
+
 type TokenResponse = {
 	access: string;
 	refresh: string;
@@ -14,4 +21,11 @@ type ErrorResponse = {
 
 type RefreshTokenRequest = {
 	refresh: string;
+};
+
+type PaginatedResponse<Obj> = {
+	count: number;
+	next: number | null | undefined;
+	previous: number | null | undefined;
+	results: Obj[];
 };
